@@ -1,0 +1,16 @@
+:root {
+    --black-color: #191414;
+    --green-color: #84bd00;
+    --grey-color: #828282;
+    --sand-color: #ecebe8;
+    --white-color: #ffffff;
+    --red-color: #d71e32;
+    --darker-red-color: rgb(173 24 39);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Helvetica, Arial, sans-serif;
+}

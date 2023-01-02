@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+{% endblock %}
+
+{% block body %} 
+<div class="main">
+    <img  id="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="logo">
+    <a class="login-btn" href="/login">Login to Spotify!</a>
+</div>    
+<script type="text/javascript" src="{{ url_for('static', filename='js/home.js') }}"></script>
+{% endblock %}
