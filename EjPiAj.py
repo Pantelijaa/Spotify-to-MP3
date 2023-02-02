@@ -34,6 +34,12 @@ class Spotify(object):
         get album by specific id
         """
         return self.get_resource(_id, resource_type='albums')
+    
+    def get_track_by_id(self, _id):
+        """
+        get track by specific id
+        """
+        return self.get_resource(_id, resource_type="tracks")
 
     def get_artist_by_id(self, _id):
         """

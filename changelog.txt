@@ -1,0 +1,7 @@
+5/1:
+Added favicon;
+29/1:
+Update mp3 metadata;
+Download album covers;
+Rename file;
+Navbar logo returns to Home page;

@@ -1,4 +1,4 @@
-# "C:\Python310\lib\ssl.py", line 579 modified
+# Python310\lib\ssl.py, line 579 modified
 from flask import Flask, request, url_for, session, redirect, render_template
 from EjPiAj import *
 import time
@@ -7,6 +7,10 @@ import glob
 import re
 import ffmpy
 import os
+import eyed3
+import requests
+from PIL import Image
+
 
 client_id = '' # Spotify API Client ID
 client_secret = '' # Spotify API Client Secret
@@ -92,25 +96,53 @@ def getTracks():
 
     return render_template('gettracks.html', data=me)
 
+# Download page
 @app.route('/download')
 def download():
-    artist = request.args.get('artist')
-    song = request.args.get('song')
-    search_patern = f"{artist} - {song}"
-    try:
+    # Init spotify API
+    id = request.args.get('id')
+    token_info = get_token()
+    spotify = Spotify(auth=token_info["access_token"])
+    # Make dirs if they dont exist
+    if not os.path.exists(download_folder):
+        os.mkdir(download_folder)
+    if not os.path.exists(f'{download_folder}\covers'):
+        os.mkdir(f'{download_folder}\covers')
+    # Collect song infomation
+    song = spotify.get_track_by_id(id)
+    song_artist = song["artists"][0]["name"]
+    song_name = song["name"]
+    song_number = int(song["track_number"])
+    album_name = song["album"]["name"]
+    album_release_date = int(song["album"]["release_date"][:4])
+    album_img_url = song["album"]["images"][0]["url"]
+    album_img_download_url = f'{download_folder}\covers\{album_name}.jpeg'
+    search_patern = f"{song_artist} - {song_name}"
+    custom_filename = f"{download_folder}\\{song_artist} - {song_name} ({str(album_release_date)[:4]})" # Replace pytube generated file name
+    # Save cover image
+    if not os.path.exists(album_img_download_url):
+        album_img = Image.open(requests.get(album_img_url, stream=True).raw)
+        album_img.save(album_img_download_url)
+    if not os.path.exists(custom_filename + ".mp3"):
+        # Download song from youtube
         s = Search(search_patern)
         video = s.results[0]
         audio_mp4_only = video.streams.filter(only_audio=True, file_extension='mp4')[-1]
-        audio_mp4_only.download(output_path=download_folder) #dodati download path
-    except:
-        raise Exception(f"Failed to find any result for {search_patern}!")
+        audio_mp4_only.download(output_path=download_folder)
+        pytube_mp4_title = audio_mp4_only.title
+        print(f"Downloaded {pytube_mp4_title}.mp4")
 
-    # convert from mp4 to mp3
-    # ako vec ima mp3 -> error
-    try:
+
+        # Convert from mp4 to mp3
         for file in glob.glob(f"{download_folder}\\*.mp4"):
-            if re.search(artist.lower() , file.lower()) and (song.lower() , file.lower()):
-                mp4_file = file
+            escaped_pytube_mp4_title = addEscapeChar(pytube_mp4_title, ['(', ')', '[', ']'], '\\')
+            escaped_pytube_mp4_title = removeChars(escaped_pytube_mp4_title, ['.', "'", ',', '"', '/', ':'])
+            if re.search(escaped_pytube_mp4_title, file):
+                # Swap titles
+                os.rename(file, custom_filename + ".mp4")
+                mp4_file = custom_filename + ".mp4"
+            else:
+                print(pytube_mp4_title, file)
         mp3_file = f'{mp4_file[:-3]}mp3'       
         ff = ffmpy.FFmpeg(
             executable='ffmpeg-master-latest-win64-gpl\\bin\\ffmpeg.exe',
@@ -118,12 +150,39 @@ def download():
             outputs={mp3_file: None}
         )
         ff.run()
+        print(f" Converted {mp4_file} to {mp3_file}")
         os.remove(mp4_file)
-    except:
-        raise Exception(f'Error while converting to .mp3 file extension')
+
+        # Edit id3 metadata
+        audiofile = eyed3.load(mp3_file)
+        if (audiofile.tag == None):
+            audiofile.initTag()
+        audiofile.tag.title = f"{song_artist} - {song_name}"
+        audiofile.tag.album = album_name
+        audiofile.tag.artist = song_artist
+        audiofile.tag.album_artist = song_artist
+        audiofile.tag.track_num = song_number
+        audiofile.tag.release_date = album_release_date
+        audiofile.tag.images.set(3, open(album_img_download_url,'rb').read(), 'image/jpeg', description='Cover image')
+        audiofile.tag.save()
+    else:
+        print(f"{custom_filename} already exists!")
 
     return render_template('download.html')
 
+def addEscapeChar(str, substrs, char):
+    for substr in substrs:
+        if substr in [*str]:
+            index = str.index(substr)
+            str = str[:index] + char + str[index:]
+    return str
+
+def removeChars(str, chars):
+    for char in chars:
+        while char in [*str]:
+            index = str.index(char)
+            str = str[:index] + str[index + 1:]
+    return str
 def get_token():
     #get token from URL or refresh if expired
     token_info = session.get(TOKEN_INFO, None)
