@@ -5,3 +5,11 @@ Update mp3 metadata;
 Download album covers;
 Rename file;
 Navbar logo returns to Home page;
+5/2:
+Added track and artist search;
+Fixed default picture bug;
+6/2:
+Added album search;
+9/2:
+Added internal server error page;
+Added album track download;

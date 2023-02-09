@@ -10,7 +10,7 @@ with open("requirements.txt", "r") as f:
 setup(
     name='SpotifyToMP3',
     version='1.0.0',
-    description='Spotify Web API and Web App for downloading',
+    description='Spotify Web API and Web App for downloading songs',
     author='Nikola',
     author_email='',
     url='https://github.com/Pantelijaa/flasktest',

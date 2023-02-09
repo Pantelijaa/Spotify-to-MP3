@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">
+{% endblock %}
+
+{% block body %}
+<section>
+    <div id="left-col">
+        <img id="logo"src="{{ url_for('static', filename='images/logo.png') }}" alt="logo">
+    </div>
+    <div id="right-col">
+        <h1>Something went wrong!</h1>
+        <h3>{{ error.name }}: {{ error.code }}</h3>
+        <p>{{ error.description }}</p>
+        <a class="return-btn" href="/getTracks">Return to safety</a>
+    </div>
+</section>
+<script type="text/javascript" src="{{ url_for('static', filename='js/error.js') }}"></script>
+{% endblock %}

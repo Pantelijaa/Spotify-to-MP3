@@ -1,5 +1,5 @@
-# Python310\lib\ssl.py, line 579 modified
-from flask import Flask, request, url_for, session, redirect, render_template
+# Python310\Lib\ssl.py, line 579 modified
+from flask import Flask, request, url_for, session, redirect, render_template, abort
 from EjPiAj import *
 import time
 from pytube import  Search
@@ -64,33 +64,32 @@ def getTracks():
     spotify = Spotify(auth=token_info["access_token"])
     me = spotify.get_user_info()
 
-    def search_playlist(name):
-        playlists = spotify.get_playlists_by_user_id(me["id"])
-        for elem in playlists:
-            for val in elem.values():
-                if val == name:
-                    return elem['id']
-    
-    def search_on_spotify(name, type):
-        return spotify.search(query=name, search_type=type)
-
     if request.method == 'POST':
         search_value = request.form['search-value']
         search_type = request.form['search-type']
-    
-        if search_type == 'playlist':
-            playlist_id = search_playlist(search_value)
-            try:
+        try:
+            if search_type == 'playlist':
+                playlist_id = search_playlist(search_value, spotify)
                 playlist = spotify.get_playlist_tracks_by_id(playlist_id)
                 return render_template('gettracks.html', data=me, playlist=playlist)
-            except:
-                raise Exception(f'Failed to find playlist: {search_value}!')
-        else:
-            try:
-                result = search_on_spotify(search_value, search_type)
-                return render_template('gettracks.html', data=me, result=result)
-            except:
-                raise Exception(f"Failed to find {search_type}: {search_value}!")
+            elif search_type == 'track':
+                artist = search_on_spotify(search_value, search_type, spotify)
+                return render_template('gettracks.html', data=me, track=artist)
+            elif search_type == 'artist':
+                artist = search_on_spotify(search_value, search_type, spotify)
+                return render_template('gettracks.html', data=me, artist=artist)
+            elif search_type == 'album':
+                album = search_on_spotify(search_value, search_type, spotify)
+                albums = list()
+                for item in album['albums']['items']:
+                    id = item['id']
+                    get_album = spotify.get_album_by_id(id)
+                    for elem in get_album['tracks']['items']:
+                        elem['duration'] = convert_from_miliseconds_to_minutes(elem['duration_ms'])
+                    albums.append(get_album)
+                return render_template('gettracks.html', data=me, album=albums)
+        except:
+            abort(500, description=f"Failed to find {search_type} \"{search_value}\"")
 
         
 
@@ -123,20 +122,22 @@ def download():
     if not os.path.exists(album_img_download_url):
         album_img = Image.open(requests.get(album_img_url, stream=True).raw)
         album_img.save(album_img_download_url)
-    if not os.path.exists(custom_filename + ".mp3"):
+    if os.path.exists(custom_filename + ".mp3"):
+        abort(500, description=f"{custom_filename} already exists")
+    else:
         # Download song from youtube
         s = Search(search_patern)
         video = s.results[0]
         audio_mp4_only = video.streams.filter(only_audio=True, file_extension='mp4')[-1]
         audio_mp4_only.download(output_path=download_folder)
         pytube_mp4_title = audio_mp4_only.title
+        escaped_pytube_mp4_title = addEscapeChar(pytube_mp4_title, ['(', ')', '[', ']'], '\\')
+        escaped_pytube_mp4_title = removeChars(escaped_pytube_mp4_title, ['.', "'", ',', '"', '/', ':'])
         print(f"Downloaded {pytube_mp4_title}.mp4")
 
 
         # Convert from mp4 to mp3
         for file in glob.glob(f"{download_folder}\\*.mp4"):
-            escaped_pytube_mp4_title = addEscapeChar(pytube_mp4_title, ['(', ')', '[', ']'], '\\')
-            escaped_pytube_mp4_title = removeChars(escaped_pytube_mp4_title, ['.', "'", ',', '"', '/', ':'])
             if re.search(escaped_pytube_mp4_title, file):
                 # Swap titles
                 os.rename(file, custom_filename + ".mp4")
@@ -165,10 +166,24 @@ def download():
         audiofile.tag.release_date = album_release_date
         audiofile.tag.images.set(3, open(album_img_download_url,'rb').read(), 'image/jpeg', description='Cover image')
         audiofile.tag.save()
-    else:
-        print(f"{custom_filename} already exists!")
 
     return render_template('download.html')
+
+@app.errorhandler(500)
+def intenarl_error(e):
+    return render_template('error.html', error=e), 500
+
+
+def search_playlist(name, spotify):
+        me = spotify.get_user_info()
+        playlists = spotify.get_playlists_by_user_id(me["id"])
+        for elem in playlists:
+            for val in elem.values():
+                if val == name:
+                    return elem['id']
+    
+def search_on_spotify(name, type, spotify):
+    return spotify.search(query=name, search_type=type)
 
 def addEscapeChar(str, substrs, char):
     for substr in substrs:
@@ -183,6 +198,17 @@ def removeChars(str, chars):
             index = str.index(char)
             str = str[:index] + str[index + 1:]
     return str
+
+def convert_from_miliseconds_to_minutes(ms):
+    secs= int(ms/1000)
+    minutes=0
+    while secs >= 60:
+        secs -= 60
+        minutes +=1
+    if secs < 10:
+        secs = '0' + str(secs)
+    return f'{minutes}:{secs}'
+
 def get_token():
     #get token from URL or refresh if expired
     token_info = session.get(TOKEN_INFO, None)
@@ -194,7 +220,6 @@ def get_token():
         spotify = create_spotify_oauth()
         token_info = spotify.refresh_access_token(token_info["access_token"])
     return token_info
-
 
 def create_spotify_oauth():
     #Initialize spotify authorization

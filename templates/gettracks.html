@@ -2,16 +2,13 @@
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/gettracks.css') }}">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
-<script>
-    const data = {{ data|tojson }}; // turn data from flask into js object
-</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 {% endblock %}
 
 {% block body %} 
 <nav id="top-navbar">
     <div id="logo-div">
-        <a href="/"><img id="logo"src="{{ url_for('static', filename='images/logo.png') }}" alt="logo"></a>
+        <a href="/getTracks"><img id="logo"src="{{ url_for('static', filename='images/logo.png') }}" alt="logo"></a>
     </div>
     <form action="{{ url_for('getTracks') }}" method="post" id="search-menu">
         <input type="text" id="search-value" name="search-value" autocomplete="off" placeholder="Search on Spotify...">
@@ -28,16 +25,20 @@
         </a>
     </form>
     <div id="profile">
-        <img id="profile-img" src="" alt="">
+        {% if data.images %}
+        <img id="profile-img" src="data.images[0].url" alt="">
+        {% else %}
+        <img id="profile-img" src="{{ url_for('static', filename="images/default_profile.jfif") }}" alt="">
+        {%endif%}
         <p id="profile-name">{{ data.display_name }}</p>
     </div>
 </nav>
 
 <main>
     {% if playlist %}
-    <!-- <a class="download-btn" href="#">Download All</a> -->
     <section id="content">
-    {% for song in playlist %}
+        <!-- <a class="download-btn" href="#">Download All</a> -->
+        {% for song in playlist %}
         <div class="item">
             <img id="track-image"src="{{ song.track.album.images[0].url }}" alt="">
             <p id="artist-name"><b>Artist:</b> {{ song.track.album.artists[0].name }}</p>
@@ -45,11 +46,98 @@
             <p id="album-name"><b>Album name:</b> {{ song.track.album.name }}</p>
             <a class="download-btn" href="/download?id={{ song.track.id }}" target="_blank">Download</a>
         </div>
-    {%endfor%}
+        {% endfor %}
     </section>
-    {% elif result %}
-    <section id="soon">
-        <h1>Coming soon!</h1>
+    {% elif track %}
+    <section id="content">
+    {% for item in track.tracks['items'] %}
+    <div class="item">
+        <img id="track-image"src="{{ item.album.images[0].url }}" alt="">
+        <p id="artist-name"><b>Artist:</b> {{ item.album.artists[0].name }}</p>
+        <p id="track-name"><b>Song name:</b> {{ item.name }}</p>
+        <p id="album-name"><b>Album name:</b> {{ item.album.name }}</p>
+        <a class="download-btn" href="/download?id={{ item.id }}" target="_blank">Download</a>
+    </div>
+    {% endfor %}
+    </section>
+    {% elif artist %}
+    <section id="content">
+        {% for item in artist.artists['items'] %}
+        <div class="item">
+            {% if item.images[0] %}
+            <img id="track-image"src="{{ item.images[0].url }}" alt="">
+            {% else %}
+            <img id="track-image"src="{{ url_for('static', filename="images/default_profile.jfif" ) }}" alt="">
+            {% endif %}
+            <p id="artist-name"><b>Artist:</b> {{ item.name }}</p>
+        </div>
+        {% endfor %}
+    </section>
+    {% elif album %}
+    <section id="album-content">
+        {% for item in album %}
+        <div class="album-item">
+            <div id="info">
+                {% if item.images[0] %}
+                <img id="album-image"src="{{ item.images[0].url }}" alt="">
+                {% else %}
+                <img id="album-image"src="{{ url_for('static', filename="images/default.jfif" ) }}" alt="">
+                {% endif %}
+                <div id="col">
+                    <div id="row-1">
+                        <p id="album-name">{{ item.name }}</p>
+                        <p id="artist-name">{{ item.artists[0].name }}</p>
+                    </div>
+                    <div id="row-2">
+                        <p id="type">{{ item.type }}</p>
+                        <span class="material-symbols-outlined">
+                            fiber_manual_record
+                        </span>
+                        <p id="year">{{ item.release_date[:4] }}</p>
+                        <span class="material-symbols-outlined">
+                            fiber_manual_record
+                        </span>
+                        {% if item.total_tracks == 1 %}
+                        <p id="song-count">{{ item.total_tracks }} song</p>
+                        {% else %}
+                        <p id="song-count">{{ item.total_tracks }} songs</p>
+                        {% endif %}
+                    </div>
+                    <div id="row-3">
+                        <span class="material-symbols-outlined fill1">
+                            play_circle
+                        </span>
+                        <span class="material-symbols-outlined">
+                            download
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="tracks">
+                <div id="tooltip">
+                    <p>#</p>
+                    <h3>TITLE</h3>
+                    <span class="material-symbols-outlined">
+                        schedule
+                    </span>
+                    <h3>GET</h3>
+                </div>
+                <hr>
+                {% for track in item.tracks['items'] %}
+                <div id="track">
+                    <h3 id="album-track-number">{{ track.track_number }}</h3>
+                    <h3 id="album-track-name">{{ track.name }}</h3>
+                    <h3 id="album-track-duration">{{ track.duration }}</h3>
+                    <a  id="download-btn" href="/download?id={{ track.id }}" target="_blank">
+                        <span class="material-symbols-outlined">
+                            download
+                        </span>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
     </section>
     {% endif %}
 </main>
