@@ -96,7 +96,7 @@ class Spotify(object):
                 operator = operator.upper()
                 if isinstance(operator_query, str):
                     query = f"{query} {operator} {operator_query}"
-        query_params = urlencode({"q": query, "type": search_type.lower()})
+        query_params = urlencode({"q": query, "type": search_type.lower()}, safe=',')
         return self.base_search(query_params)
 
 class SpotifyOAuth(object):

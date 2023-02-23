@@ -63,36 +63,13 @@ def getTracks():
         return redirect("/")
     spotify = Spotify(auth=token_info["access_token"])
     me = spotify.get_user_info()
-
     if request.method == 'POST':
         search_value = request.form['search-value']
         search_type = request.form['search-type']
         try:
-            if search_type == 'playlist':
-                playlist_id = search_playlist(search_value, spotify)
-                playlist = spotify.get_playlist_tracks_by_id(playlist_id)
-                return render_template('gettracks.html', data=me, playlist=playlist)
-            elif search_type == 'track':
-                artist = search_on_spotify(search_value, search_type, spotify)
-                return render_template('gettracks.html', data=me, track=artist)
-            elif search_type == 'artist':
-                artist = search_on_spotify(search_value, search_type, spotify)
-                return render_template('gettracks.html', data=me, artist=artist)
-            elif search_type == 'album':
-                album = search_on_spotify(search_value, search_type, spotify)
-                albums = list()
-                for item in album['albums']['items']:
-                    id = item['id']
-                    get_album = spotify.get_album_by_id(id)
-                    for elem in get_album['tracks']['items']:
-                        elem['duration'] = convert_from_miliseconds_to_minutes(elem['duration_ms'])
-                    albums.append(get_album)
-                return render_template('gettracks.html', data=me, album=albums)
+            return render_template('gettracks.html', data=me, result=search_on_spotify(search_value, search_type, spotify))    
         except:
             abort(500, description=f"Failed to find {search_type} \"{search_value}\"")
-
-        
-
     return render_template('gettracks.html', data=me)
 
 # Download page
@@ -107,7 +84,7 @@ def download():
         os.mkdir(download_folder)
     if not os.path.exists(f'{download_folder}\covers'):
         os.mkdir(f'{download_folder}\covers')
-    # Collect song infomation
+    # Collect song information
     song = spotify.get_track_by_id(id)
     song_artist = song["artists"][0]["name"]
     song_name = song["name"]
@@ -117,7 +94,7 @@ def download():
     album_img_url = song["album"]["images"][0]["url"]
     album_img_download_url = f'{download_folder}\covers\{album_name}.jpeg'
     search_patern = f"{song_artist} - {song_name}"
-    custom_filename = f"{download_folder}\\{song_artist} - {song_name} ({str(album_release_date)[:4]})" # Replace pytube generated file name
+    custom_filename = f"{download_folder}\\{song_artist} - {song_name} ({str(album_release_date)})" # Replace pytube generated file name
     # Save cover image
     if not os.path.exists(album_img_download_url):
         album_img = Image.open(requests.get(album_img_url, stream=True).raw)
@@ -173,17 +150,31 @@ def download():
 def intenarl_error(e):
     return render_template('error.html', error=e), 500
 
-
 def search_playlist(name, spotify):
-        me = spotify.get_user_info()
-        playlists = spotify.get_playlists_by_user_id(me["id"])
-        for elem in playlists:
-            for val in elem.values():
-                if val == name:
-                    return elem['id']
+    me = spotify.get_user_info()
+    playlists = spotify.get_playlists_by_user_id(me["id"])
+    for elem in playlists:
+        for val in elem.values():
+            if val == name:
+                return elem['id']
     
 def search_on_spotify(name, type, spotify):
-    return spotify.search(query=name, search_type=type)
+    if type == 'any':
+        type = 'track,album,artist'
+    result = spotify.search(query=name, search_type=type)
+    if 'album' in type:
+        albums = list()
+        for item in result['albums']['items']:
+            id = item['id']
+            get_album = spotify.get_album_by_id(id)
+            for elem in get_album['tracks']['items']:
+                elem['duration'] = convert_from_miliseconds_to_minutes(elem['duration_ms'])
+            albums.append(get_album)
+        result['albums'] =  albums
+    elif type =='playlist':
+        playlist_id = search_playlist(name, spotify)
+        result = {'playlist': spotify.get_playlist_tracks_by_id(playlist_id)}
+    return result
 
 def addEscapeChar(str, substrs, char):
     for substr in substrs:

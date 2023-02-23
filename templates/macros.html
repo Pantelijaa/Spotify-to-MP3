@@ -1,0 +1,151 @@
+{% macro navbar(profile_name , profile_img=false) %}
+<nav id="top-navbar">
+    <div id="logo-div">
+        <a href="{{ url_for('getTracks')}}"><img id="logo"src="{{ url_for('static', filename='images/logo.png') }}" alt="logo"></a>
+    </div>
+    <form action="{{ url_for('getTracks') }}" method="post" id="search-menu">
+        <input type="text" id="search-value" name="search-value" autocomplete="off" placeholder="Search on Spotify...">
+        <select name="search-type" id="search-type">
+            <option value="any">All</option>
+            <option value="playlist">Playlist</option>
+            <option value="track">Track</option>
+            <option value="artist">Artist</option>
+            <option value="album">Album</option>
+        </select>
+        <a href="javascript:{}" id="search" onclick="document.querySelector('#search-menu').submit();">
+            <span class="material-symbols-outlined">
+                search
+            </span>
+        </a>
+    </form>
+    <div id="profile">
+        {% if profile_img %}
+        <img id="profile-img" src="{{ profile_img }}" alt="">
+        {% else %}
+        <img id="profile-img" src="{{ url_for('static', filename="images/default_profile.jfif") }}" alt="">
+        {%endif%}
+        <p id="profile-name">{{ profile_name }}</p>
+        <div id="dropdown">
+            <span class="material-symbols-outlined">
+                arrow_drop_down
+            </span>
+            <ul id="drop-menu">
+                <li>
+                    <a href="{{ data.external_urls.spotify }}" target="_blank">
+                        Account
+                        <span class="material-symbols-outlined">
+                            ungroup
+                        </span>
+                    </a>
+                </li>
+                <li><a href="#">Playlists</a></li>
+                <li><a href="#">Liked Songs</a></li>
+                <li><a href="">Log Out</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+{% endmacro %}
+
+{%  macro make_track(track) %}
+{% for item in track['items'] %}
+<div class="item">
+    <img id="track-image"src="{{ item.album.images[0].url }}" alt="">
+    <p id="artist-name"><b>Artist:</b> {{ item.album.artists[0].name }}</p>
+    <p id="track-name"><b>Song name:</b> {{ item.name}}</p>
+    <p id="album-name"><b>Album name:</b> {{ item.album.name }}</p>
+    <a class="download-btn" href="/download?id={{ item.id }}" target="_blank">Download</a>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro make_artist(artist) %}
+{% for item in artist['items']%}
+<div class="item">
+    {% if item.images[0] %}
+    <img id="track-image"src="{{ item.images[0].url }}" alt="">
+    {% else %}
+    <img id="track-image"src="{{ url_for('static', filename="images/default_profile.jfif" ) }}" alt="">
+    {% endif %}
+    <p id="artist-name"><b>Artist:</b> {{ item.name }}</p>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro make_album(album) %}
+{% for item in album %}
+<div class="album-item">
+    <div id="info">
+        {% if item.images[0] %}
+        <img id="album-image"src="{{ item.images[0].url }}" alt="">
+        {% else %}
+        <img id="album-image"src="{{ url_for('static', filename="images/default.jfif" ) }}" alt="">
+        {% endif %}
+        <div id="col">
+            <div id="row-1">
+                <p id="album-name">{{ item.name }}</p>
+                <p id="artist-name">{{ item.artists[0].name }}</p>
+            </div>
+            <div id="row-2">
+                <p id="type">{{ item.type }}</p>
+                <span class="material-symbols-outlined">
+                    fiber_manual_record
+                </span>
+                <p id="year">{{ item.release_date[:4] }}</p>
+                <span class="material-symbols-outlined">
+                    fiber_manual_record
+                </span>
+                {% if item.total_tracks == 1 %}
+                <p id="song-count">{{ item.total_tracks }} song</p>
+                {% else %}
+                <p id="song-count">{{ item.total_tracks }} songs</p>
+                {% endif %}
+            </div>
+            <div id="row-3">
+                <span class="material-symbols-outlined fill1">
+                    play_circle
+                </span>
+                <span class="material-symbols-outlined">
+                    download
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="tracks">
+        <div id="tooltip">
+            <p>#</p>
+            <p>TITLE</p>
+            <span class="material-symbols-outlined">
+                schedule
+            </span>
+            <p>GET</p>
+        </div>
+        <hr>
+        {% for track in item.tracks['items'] %}
+        <div id="track">
+            <p id="album-track-number">{{ track.track_number }}</p>
+            <p id="album-track-name">{{ track.name }}</p>
+            <p id="album-track-duration">{{ track.duration }}</p>
+            <a  id="download-btn" href="/download?id={{ track.id }}" target="_blank">
+                <span class="material-symbols-outlined">
+                    download
+                </span>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endmacro %}
+
+{% macro make_playlist(playlist)%}
+{% for track in playlist %}
+<div class="item">
+    <img id="track-image"src="{{ track.track.album.images[0].url }}" alt="">
+    <p id="artist-name"><b>Artist:</b> {{ track.track.album.artists[0].name }}</p>
+    <p id="track-name"><b>Song name:</b> {{ track.track.name }}</p>
+    <p id="album-name"><b>Album name:</b> {{ track.track.album.name }}</p>
+    <a class="download-btn" href="/download?id={{ track.track.id }}" target="_blank">Download</a>
+</div>
+{%endfor%}
+{% endmacro %}

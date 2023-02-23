@@ -13,6 +13,7 @@
 #top-navbar #logo-div #logo {
     max-width: 50px;
     max-height: 50px;
+    margin: 2px 0;
 }
 
 
@@ -48,24 +49,60 @@
     display: flex;
     align-items: center;
     background-color: black;
-    padding: 5px 5px;
-    margin: 5px 0;
     border-radius: 500px;
+}
+
+#top-navbar #profile:hover  {
+    background-color: var(--drop-down-color);
 }
 
 #top-navbar #profile #profile-img {
     width: 40px;
     height: 40px;
+    margin: 2px 0 2px 2px;
     border-radius: 50%;
 }
 
+#top-navbar #profile #dropdown #drop-menu {
+    background-color: var(--drop-down-color);
+    display: none;
+    position: absolute;
+    border-radius: 5px;
+    top: 55px;
+    right: 40px;
+    overflow-x: visible;
+}
+
+.disp-block {
+    display: block !important;
+}
+
+#top-navbar #profile #dropdown #drop-menu li a {
+    display: block;
+    text-decoration: none;
+    color: var(--white-color);
+    padding: 15px 10px;
+    overflow: visible;
+    margin: 3px 5px 0 5px;
+}
+
+#top-navbar #profile #dropdown #drop-menu li:last-child {
+    margin-bottom: 3px;
+}
+
+#top-navbar #profile #dropdown #drop-menu li a:hover {
+    background-color: var(--drop-down-hover);
+    border-radius: 5px;
+}
+
+
 #top-navbar #profile #profile-name {
     color: var(--white-color);
-    margin: 0 10px;
+    margin: 0 5px;
     font-weight: bold;
 }
 
-main #content {
+main section:not(.albums) {
     display: flex;
     margin-top: 20px;
     flex-wrap: wrap;
@@ -73,7 +110,7 @@ main #content {
     
 }
 
-main #content .item {
+section:not(.albums) .item {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -82,18 +119,18 @@ main #content .item {
     margin: 15px 0;
 }
 
-main #content .item #track-image {
+section:not(.albums) .item #track-image {
     width: -webkit-fill-available;
     padding: 2px;
     margin-bottom: 5px;
 }
 
-main #content .item p {
+section:not(.albums) .item p {
     font-size: 18px;
     margin: 1px 4px;
 }
 
-main #content .item .download-btn {
+section:not(.albums) .item .download-btn {
     background-color: var(--red-color);
     position: relative;
     overflow: visible;
@@ -108,9 +145,9 @@ main #content .item .download-btn {
     align-self: center;
 }
 /*
-login button border
+download button border
 */
-main #content .item .download-btn:after {
+section:not(.albums) .item .download-btn:after {
     content: '';
     position: absolute;
     top: -5px;
@@ -122,9 +159,9 @@ main #content .item .download-btn:after {
     transition: all 200ms ease-in 0s;
 }
 /*
-login button border onclick event
+download button border onclick event
 */
-main #content .item .download-btn-modifier:after {
+section:not(.albums) .item .download-btn-modifier:after {
     display: block;
     content: '';
     position: absolute;
@@ -134,68 +171,87 @@ main #content .item .download-btn-modifier:after {
     bottom: -7px;
     border: black 4px solid;
     border-radius: 500px;
- }
+}
 
-main #content .item .download-btn:hover {
+section:not(.albums) .item .download-btn:hover {
     transition: all 100ms ease-in;
     transform: scale(1.04);
     background-color: var(--darker-red-color);
 }
-
-main #album-content {
+/* Album */
+.albums {
     display: flex;
     flex-direction: column;
     width: 80%;
     margin: auto;
 }
 
-main #album-content .album-item {
+.albums .album-item {
     margin-top: 20px;
 }
 
-main #album-content .album-item #info {
+.albums .album-item #info {
     display: flex;
     justify-content: flex-start;
-
+    
 }
 
-main #album-content .album-item #info #col {
+.albums .album-item #info #col {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
 }
 
-main #album-content .album-item #info #col #row-2 p {
+.albums .album-item #info #col #row-2 p {
     display: inline-block;
 }
-main #album-content .album-item #info #col #row-2 #type {
+.albums .album-item #info #col #row-2 #type {
     text-transform: capitalize;
 }
 
-main #album-content .album-item #info #col #album-name {
+.albums .album-item #info #col #album-name {
     font-weight: bold;
     font-size: 22px;
 }
 
-main #album-content .album-item #info #album-image {
+.albums .album-item #info #album-image {
     max-height: 175px;
     margin-right: 10px;
 }
 
-main #album-content .album-item .tracks > div {
+.albums .album-item .tracks > div {
     display: grid;
     padding: 10px 0;
     grid-template-columns: 0.3fr 8fr 0.5fr 0.5fr;
 }
-main #album-content .album-item .tracks > div :last-child {
+.albums .album-item .tracks > div :last-child {
     text-align: center;
 }
 
-main #album-content .album-item .tracks #track #download-btn {
+.albums .album-item .tracks div p {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.albums .album-item .tracks #track #download-btn {
     text-decoration: none;
 }
 
 /* Google fonts */
+
+#top-navbar #profile #dropdown  .material-symbols-outlined {
+    background-color: inherit;
+    font-size: 30px;
+    color: var(--white-color);
+    overflow-x: visible;
+    cursor: default;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 48
+}
+
 #top-navbar #search .material-symbols-outlined {
     color: var(--sand-color);
     font-size: 32px;
@@ -208,7 +264,20 @@ main #album-content .album-item .tracks #track #download-btn {
     'opsz' 48
 }
 
-main #album-content .album-item #info #col #row-2 .material-symbols-outlined {
+#top-navbar #profile #dropdown #drop-menu li a .material-symbols-outlined {
+    color: var(--sand-color);
+    font-size: 16px;
+    position: absolute;
+    right: 10px;
+    overflow-x: visible;
+    cursor: default;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 48
+}
+.albums .album-item #info #col #row-2 .material-symbols-outlined {
     color: var(--black-color);
     font-size: 16px;
     overflow: visible;
@@ -220,7 +289,7 @@ main #album-content .album-item #info #col #row-2 .material-symbols-outlined {
     'opsz' 20
 }
 
-main #album-content .album-item #info #col #row-3 .material-symbols-outlined {
+.albums .album-item #info #col #row-3 .material-symbols-outlined {
     color: var(--black-color);
     font-size: 38px;
     overflow: visible;
@@ -232,7 +301,7 @@ main #album-content .album-item #info #col #row-3 .material-symbols-outlined {
     'opsz' 40
 }
 
-main #album-content .album-item .tracks #tooltip .material-symbols-outlined {
+.albums .album-item .tracks #tooltip .material-symbols-outlined {
     color: var(--black-color);
     overflow: visible;
     cursor: default;
@@ -243,7 +312,7 @@ main #album-content .album-item .tracks #tooltip .material-symbols-outlined {
     'opsz' 48
 }
 
-main #album-content .album-item .tracks #track #download-btn .material-symbols-outlined {
+.albums .album-item .tracks #track #download-btn .material-symbols-outlined {
     color: var(--black-color);
     font-size: 26px;
     overflow: visible;
@@ -258,6 +327,3 @@ main #album-content .album-item .tracks #track #download-btn .material-symbols-o
     font-variation-settings:
     'FILL' 1 !important
 }
-
-
-

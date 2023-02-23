@@ -13,3 +13,6 @@ Added album search;
 9/2:
 Added internal server error page;
 Added album track download;
+12/2:
+Added macro structure;
+Added search all option;

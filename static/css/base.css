@@ -6,6 +6,8 @@
     --white-color: #ffffff;
     --red-color: #d71e32;
     --darker-red-color: rgb(173 24 39);
+    --drop-down-color: #282828;
+    --drop-down-hover: #3E3E3E;
 }
 
 * {
@@ -13,4 +15,5 @@
     padding: 0;
     box-sizing: border-box;
     font-family: Helvetica, Arial, sans-serif;
+    cursor: default;
 }
