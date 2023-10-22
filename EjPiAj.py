@@ -4,11 +4,9 @@ import time
 from urllib.parse import urlencode
 
 class Spotify(object):
-
     """
-    Use after initial authorization 
+    Use after initial OAuth
     """
-
     def __init__(self, auth=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.auth = auth
@@ -61,6 +59,14 @@ class Spotify(object):
         """
         modified_id = f"{_id}/tracks"
         data = self.get_resource(modified_id, resource_type='playlists')
+        # ako je playlista duza od 100 pesama
+        max_limit = 100
+        while data['total'] > max_limit:
+            extended_data = self.get_resource(modified_id + f"?offset={max_limit}", resource_type='playlists')
+            for item in extended_data['items']:
+                data["items"].append(item)
+            max_limit += 100
+
         return data["items"]
 
     def get_user_info(self):

@@ -23,3 +23,13 @@ profile.addEventListener('click', e => {
     }
 })
 
+$(function() {
+    $('a#logout-btn').on('click', e => {
+        e.preventDefault()
+        $.getJSON('/force_logout',
+            function(data) {
+                location.reload()
+            });
+            return false;
+    });
+});

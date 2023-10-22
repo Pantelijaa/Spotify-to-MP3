@@ -16,3 +16,13 @@ Added album track download;
 12/2:
 Added macro structure;
 Added search all option;
+24/2:
+Added logout;
+12/4:
+Fixed bug when track had certain special characters;
+Added .env file;
+Added auto find user's Download folder for windows and mac;
+12/6:
+Show more than 100 playlist songs;
+Fixed bug when cover name had certain special characters;
+

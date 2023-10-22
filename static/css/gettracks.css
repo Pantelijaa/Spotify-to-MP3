@@ -16,12 +16,12 @@
     margin: 2px 0;
 }
 
-
 #top-navbar form {
     width: 600px;
     display: flex;
     align-items: center;
 }
+
 #top-navbar form #search-value {
     background-color: var(--black-color);
     color: var(--sand-color);

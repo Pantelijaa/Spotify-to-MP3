@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% block head %}{% endblock %}
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <title>Pantify</title>
+    <title>SpotifyToMP3</title>
     <!-- favicon -->
     <link rel="apple-touch-icon-precomposed" sizes="57x57" href="../static/images/favicon/apple-touch-icon-57x57.png" />
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../static/images/favicon/apple-touch-icon-114x114.png" />
@@ -27,8 +28,6 @@
     <meta name="msapplication-square150x150logo" content="../static/images/favicon/mstile-150x150.png" />
     <meta name="msapplication-wide310x150logo" content="../static/images/favicon/mstile-310x150.png" />
     <meta name="msapplication-square310x310logo" content="../static/images/favicon/mstile-310x310.png" />
-
-    {% block head %}{% endblock %}
 </head>
 <body>
     {% block body %}{% endblock %}

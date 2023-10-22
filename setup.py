@@ -13,7 +13,7 @@ setup(
     description='Spotify Web API and Web App for downloading songs',
     author='Nikola',
     author_email='',
-    url='https://github.com/Pantelijaa/flasktest',
+    url='https://github.com/Pantelijaa/Spotify-to-MP3',
     packages=find_packages(),
     include_package_data=True,
     install_requires=requires

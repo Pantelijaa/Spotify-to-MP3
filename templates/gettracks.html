@@ -2,6 +2,7 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/gettracks.css') }}">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 {% endblock %}
 
 {% block body %} 
@@ -33,6 +34,5 @@
 {% endfor %}
 {% endif %}
 </main>
-
 <script type="text/javascript" src="{{ url_for('static', filename='js/gettracks.js') }}"></script>
 {% endblock %}
